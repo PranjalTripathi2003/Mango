@@ -1,4 +1,3 @@
-
 using AutoMapper;
 using Mango.MessageBus;
 using Mango.Services.OrderAPI.Data;
@@ -61,7 +60,7 @@ namespace Mango.Services.OrderAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.Message = ex.Message;
+                _response.Message = ex.InnerException != null ? $"{ex.Message} --> {ex.InnerException.Message}" : ex.Message;
             }
 
             return _response;
@@ -71,8 +70,6 @@ namespace Mango.Services.OrderAPI.Controllers
 
         [Authorize]
         [HttpPost("CreateOrder")]
-
-
         public async Task<ResponseDto> CreateOrder([FromBody] CartDto cartDto)
         {
             try
@@ -84,21 +81,17 @@ namespace Mango.Services.OrderAPI.Controllers
                 orderHeaderDto.OrderTotal = Math.Round(orderHeaderDto.OrderTotal, 2);
                 orderHeaderDto.OrderDetails = _mapper.Map<IEnumerable<OrderDetailsDto>>(cartDto.CartDetails);
 
-
                 OrderHeader orderCreated = _db.OrderHeaders.Add(_mapper.Map<OrderHeader>(orderHeaderDto)).Entity;
 
                 await _db.SaveChangesAsync();
 
                 orderHeaderDto.OrderHeaderId = orderCreated.OrderHeaderId;
                 _response.Result = orderHeaderDto;
-
-
-
             }
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.Message = ex.Message;
+                _response.Message = ex.InnerException != null ? $"{ex.Message} --> {ex.InnerException.Message}" : ex.Message;
             }
 
             return _response;
@@ -149,7 +142,7 @@ namespace Mango.Services.OrderAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.Message = ex.Message;
+                _response.Message = ex.InnerException != null ? $"{ex.Message} --> {ex.InnerException.Message}" : ex.Message;
             }
             return _response;
         }
@@ -175,7 +168,7 @@ namespace Mango.Services.OrderAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.Message = ex.Message;
+                _response.Message = ex.InnerException != null ? $"{ex.Message} --> {ex.InnerException.Message}" : ex.Message;
             }
             return _response;
         }
@@ -254,7 +247,7 @@ namespace Mango.Services.OrderAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.Message = ex.Message;
+                _response.Message = ex.InnerException != null ? $"{ex.Message} --> {ex.InnerException.Message}" : ex.Message;
             }
             return _response;
         }
@@ -309,7 +302,7 @@ namespace Mango.Services.OrderAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.Message = ex.Message;
+                _response.Message = ex.InnerException != null ? $"{ex.Message} --> {ex.InnerException.Message}" : ex.Message;
             }
             return _response;
         }

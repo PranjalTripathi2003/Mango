@@ -1,4 +1,4 @@
-﻿
+
 
 using System.ComponentModel.DataAnnotations;
 
@@ -15,7 +15,8 @@ namespace Mango.Web.Models
         public double CartTotal { get; set; }
         [Required]
         public string? Name { get; set; }
-     
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
         [Required]
         public string? Phone { get; set; }
         [Required]

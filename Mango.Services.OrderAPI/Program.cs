@@ -9,6 +9,7 @@ using Mango.Services.OrderAPI.Utility;
 using Mango.Services.OrderAPI.Extensions;
 using Mango.Services.OrderAPI.Service.IService;
 using Mango.Services.OrderAPI.Service;
+using Mango.MessageBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,8 @@ builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IMessageBus, MessageBus>();
+builder.Services.AddHttpClient();
 
 
 // ADD THESE TWO LINES FOR AUTHENTICATION:

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+using AutoMapper;
+using Mango.MessageBus;
 using Mango.Services.ShoppingCartAPI.Data;
 using Mango.Services.ShoppingCartAPI.Models;
 using Mango.Services.ShoppingCartAPI.Models.Dto;
@@ -20,17 +21,18 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         private IProductService _productService;
         private ICouponService _couponService;
         private IConfiguration _configuration;
+        private IMessageBus _messageBus;
 
         public CartAPIController(AppDbContext db,
-            IMapper mapper, IProductService productService, ICouponService couponService,  IConfiguration configuration)
+            IMapper mapper, IProductService productService, ICouponService couponService,  IConfiguration configuration, IMessageBus messageBus)
         {
             _db = db;
-         
             _productService = productService;
             this._response = new ResponseDto();
             _mapper = mapper;
             _couponService = couponService;
             _configuration = configuration;
+            _messageBus = messageBus;
         }
         [HttpGet("GetCart/{userId}")]
         public async Task<ResponseDto> GetCart(string userId)
@@ -63,6 +65,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                     }
                 }
 
+                cart.CartHeader.CartTotal = Math.Round(cart.CartHeader.CartTotal, 2);
                 _response.Result = cart;
             }
             catch (Exception ex)
@@ -80,6 +83,36 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             try
             {
                 var cartFromDb = await _db.CartHeaders.FirstAsync(u => u.UserId == cartDto.CartHeader.UserId);
+
+                // Validate coupon only when applying (not when removing)
+                if (!string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
+                {
+                    CouponDto coupon = await _couponService.GetCoupon(cartDto.CartHeader.CouponCode);
+                    if (coupon == null)
+                    {
+                        _response.IsSuccess = false;
+                        _response.Message = "Invalid coupon code.";
+                        return _response;
+                    }
+
+                    // Calculate current cart total
+                    var cartDetails = _db.CartDetails.Where(u => u.CartHeaderId == cartFromDb.CartHeaderId);
+                    IEnumerable<ProductDto> productDtos = await _productService.GetProducts();
+                    double cartTotal = 0;
+                    foreach (var item in cartDetails)
+                    {
+                        var product = productDtos.FirstOrDefault(p => p.ProductId == item.ProductId);
+                        if (product != null) cartTotal += item.Count * product.Price;
+                    }
+
+                    if (cartTotal <= coupon.MinAmount)
+                    {
+                        _response.IsSuccess = false;
+                        _response.Message = $"Minimum order amount of ₹{coupon.MinAmount} is required to apply this coupon.";
+                        return _response;
+                    }
+                }
+
                 cartFromDb.CouponCode = cartDto.CartHeader.CouponCode;
                 _db.CartHeaders.Update(cartFromDb);
                 await _db.SaveChangesAsync();
@@ -93,7 +126,23 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             return _response;
         }
 
-  
+        [HttpPost("EmailCartRequest")]
+        public async Task<object> EmailCartRequest([FromBody] CartDto cartDto)
+        {
+            try
+            {
+                await _messageBus.PublishMessage(cartDto, _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue"));
+                _response.Result = true;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.ToString();
+            }
+            return _response;
+        }
+
+
 
 
 

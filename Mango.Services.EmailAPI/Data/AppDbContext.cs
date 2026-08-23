@@ -1,0 +1,18 @@
+﻿using Mango.Services.EmailAPI.Model;
+using Microsoft.EntityFrameworkCore;
+namespace Mango.Services.EmailAPI.Data
+{
+
+    public class AppDbContext : DbContext
+
+    {
+        public AppDbContext(DbContextOptions options) : base(options) { }
+        public DbSet<EmailLogger> EmailLoggers { get; set; } // property binding
+
+       
+
+    }
+}
+
+
+

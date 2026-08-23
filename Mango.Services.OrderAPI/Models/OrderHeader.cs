@@ -22,7 +22,9 @@ namespace Mango.Services.OrderAPI.Models
         public string? Status { get; set; }
 
         public string? PaymentIntentId { get; set; }
-        public string? StripeSessionId { get; set; }
+        public string? RazorpayOrderId { get; set; }
+        public string? RazorpayPaymentId { get; set; }
+        public string? RazorpaySignature { get; set; }
 
         public IEnumerable<OrderDetails> OrderDetails { get; set; }
 

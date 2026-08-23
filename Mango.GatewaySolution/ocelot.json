@@ -1,7 +1,43 @@
 {
-
-
   "Routes": [
+    //"AuthAPI": "https://localhost:7002",
+    {
+      "DownstreamPathTemplate": "/api/auth/register",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7002
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/register",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/auth/login",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7002
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/login",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/auth/AssignRole",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7002
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/AssignRole",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+
     //"ProductAPI": "https://localhost:7000",
     {
       "DownstreamPathTemplate": "/api/product",
@@ -181,6 +217,21 @@
 
     //"OrderAPI": "https://localhost:7004",
     {
+      "DownstreamPathTemplate": "/api/order/GetOrders",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7004
+        }
+      ],
+      "UpstreamPathTemplate": "/api/order/GetOrders",
+      "UpstreamHttpMethod": [ "Get" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/order/GetOrders?userId={id}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -190,21 +241,6 @@
         }
       ],
       "UpstreamPathTemplate": "/api/order/GetOrders/{id}",
-      "UpstreamHttpMethod": [ "Get" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer"
-      }
-    },
-    {
-      "DownstreamPathTemplate": "/api/order/GetOrders?userId=''",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7004
-        }
-      ],
-      "UpstreamPathTemplate": "/api/order/GetOrders/",
       "UpstreamHttpMethod": [ "Get" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
@@ -241,7 +277,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/order/ValidateStripeSession",
+      "DownstreamPathTemplate": "/api/order/ValidateRazorpayPayment",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -249,14 +285,14 @@
           "Port": 7004
         }
       ],
-      "UpstreamPathTemplate": "/api/order/ValidateStripeSession",
+      "UpstreamPathTemplate": "/api/order/ValidateRazorpayPayment",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
     },
     {
-      "DownstreamPathTemplate": "/api/order/CreateStripeSession",
+      "DownstreamPathTemplate": "/api/order/CreateRazorpayOrder",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -264,7 +300,7 @@
           "Port": 7004
         }
       ],
-      "UpstreamPathTemplate": "/api/order/CreateStripeSession",
+      "UpstreamPathTemplate": "/api/order/CreateRazorpayOrder",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"

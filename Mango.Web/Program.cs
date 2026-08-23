@@ -47,6 +47,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+var defaultCulture = new System.Globalization.CultureInfo("en-IN");
+defaultCulture.NumberFormat.CurrencySymbol = "₹";
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(defaultCulture),
+    SupportedCultures = new List<System.Globalization.CultureInfo> { defaultCulture },
+    SupportedUICultures = new List<System.Globalization.CultureInfo> { defaultCulture }
+};
+app.UseRequestLocalization(localizationOptions);
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

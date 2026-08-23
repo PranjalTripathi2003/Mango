@@ -8,6 +8,7 @@ using Mango.Services.ShoppingCartAPI.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Mango.MessageBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,10 @@ builder.Services.AddScoped<ICouponService, CouponService>();
 // ADD THESE TWO LINES FOR AUTHENTICATION:
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendApiAuthenticationHttpClientHandler>();
+
+
+// setting up the context of the message bus
+builder.Services.AddScoped<IMessageBus, MessageBus>();
 
 // UPDATE THESE TWO LINES:
 builder.Services.AddHttpClient("Product", u => u.BaseAddress =

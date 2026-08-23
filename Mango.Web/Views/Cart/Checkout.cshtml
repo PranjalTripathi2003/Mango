@@ -1,6 +1,11 @@
-﻿@model CartDto
+@model CartDto
 
 <form method="post">
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-danger mb-3">@TempData["error"]</div>
+    }
+
     <input asp-for="CartHeader.UserId" hidden />
     <input asp-for="CartHeader.CartHeaderId" hidden />
     <input asp-for="CartHeader.CouponCode" hidden />
@@ -32,9 +37,8 @@
                         <span asp-validation-for="CartHeader.Phone" class="text-danger"></span>
                     </div>
                     <div class="col-12 pt-2">
-                        <label class="col-form-label">Order will be ready in 30minutes after placing order. If you place order when restaurant is closed it will be ready next day.</label>
+                        <label class="col-form-label">Order will be ready in 30 minutes after placing order. If you place order when restaurant is closed it will be ready next day.</label>
                     </div>
-
                 </div>
             </div>
             <div class="col-5">
@@ -42,16 +46,9 @@
                     <div class="card-body">
                         <div class=" d-none d-lg-block">
                             <div class="row text-danger">
-                                <div class="col-6">
-                                    Product Details
-                                </div>
-
-                                <div class="col-3">
-                                    Price
-                                </div>
-                                <div class="col-3">
-                                    Count
-                                </div>
+                                <div class="col-6">Product Details</div>
+                                <div class="col-3">Price</div>
+                                <div class="col-3">Count</div>
                             </div>
                         </div>
                         <hr />
@@ -61,10 +58,8 @@
                                 <div class="col-6">
                                     <span style="font-size:20px">@cartObj.Product.Name</span>
                                 </div>
-
                                 <div class="col-3" style="font-size:11px;">
                                     <span style="font-size:17px;"> @cartObj.Product.Price.ToString("c")</span>
-
                                 </div>
                                 <div class="col-3" style="font-size:11px;">
                                     <span style="font-size:17px;"> @cartObj.Count</span>
@@ -81,11 +76,9 @@
                                 }
                             </div>
                         </div>
-
                     </div>
                     <div class="card-footer">
                         <div class="row">
-
                             <div class="col-12 ">
                                 <button type="submit" class="btn btn-success form-control ">
                                     <span>Place Order</span>
@@ -98,6 +91,61 @@
         </div>
     </div>
 </form>
+
+@if (ViewBag.RazorpayOrderId != null)
+{
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        const options = {
+            key: '@ViewBag.RazorpayKeyId',
+            amount: '@ViewBag.RazorpayAmount',
+            currency: 'INR',
+            name: 'Mango',
+            description: 'Order Payment',
+            order_id: '@ViewBag.RazorpayOrderId',
+            handler: function (response) {
+                const form = document.createElement('form');
+                form.method = 'get';
+                form.action = '@Url.Action("Confirmation", "Cart")';
+
+                const localOrderId = document.createElement('input');
+                localOrderId.type = 'hidden';
+                localOrderId.name = 'orderId';
+                localOrderId.value = '@ViewBag.OrderHeaderId';
+                form.appendChild(localOrderId);
+
+                const paymentId = document.createElement('input');
+                paymentId.type = 'hidden';
+                paymentId.name = 'razorpay_payment_id';
+                paymentId.value = response.razorpay_payment_id;
+                form.appendChild(paymentId);
+
+                const orderId = document.createElement('input');
+                orderId.type = 'hidden';
+                orderId.name = 'razorpay_order_id';
+                orderId.value = response.razorpay_order_id;
+                form.appendChild(orderId);
+
+                const signature = document.createElement('input');
+                signature.type = 'hidden';
+                signature.name = 'razorpay_signature';
+                signature.value = response.razorpay_signature;
+                form.appendChild(signature);
+
+                document.body.appendChild(form);
+                form.submit();
+            },
+            modal: {
+                ondismiss: function () {
+                    window.location.href = '@Url.Action("Checkout", "Cart")';
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    </script>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

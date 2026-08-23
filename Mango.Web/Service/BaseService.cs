@@ -1,19 +1,13 @@
-﻿
 using Mango.Web.Models;
 using Mango.Web.Service.IService;
 using Newtonsoft.Json;
+using System.Net;
 using System.Text;
 using static Mango.Web.Utility.SD;
-using System.Net;
-
-
-
 
 namespace Mango.Web.Service
 {
     public class BaseService : IBaseService
-
-
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ITokenProvider _tokenProvider;
@@ -26,13 +20,17 @@ namespace Mango.Web.Service
         public async Task<ResponseDto?> SendAsync(RequestDto requestDto, bool withBearer = true)
         {
             try
-
             {
-
                 HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
-
                 HttpRequestMessage message = new();
-                message.Headers.Add("Accept", "application/json");
+                if (requestDto.ContentType == ContentType.MultipartFormData)
+                {
+                    message.Headers.Add("Accept", "*/*");
+                }
+                else
+                {
+                    message.Headers.Add("Accept", "application/json");
+                }
 
                 if (withBearer)
                 {
@@ -41,11 +39,36 @@ namespace Mango.Web.Service
                 }
 
                 message.RequestUri = new Uri(requestDto.Url);
-                if (requestDto.Data != null)
-                {
-                    message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
-                }
 
+                if (requestDto.ContentType == ContentType.MultipartFormData)
+                {
+                    var content = new MultipartFormDataContent();
+
+                    foreach (var prop in requestDto.Data.GetType().GetProperties())
+                    {
+                        var value = prop.GetValue(requestDto.Data);
+                        if (value is FormFile)
+                        {
+                            var file = (FormFile)value;
+                            if (file != null)
+                            {
+                                content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
+                            }
+                        }
+                        else
+                        {
+                            content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
+                        }
+                    }
+                    message.Content = content;
+                }
+                else
+                {
+                    if (requestDto.Data != null)
+                    {
+                        message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
+                    }
+                }
 
                 HttpResponseMessage? apiResponse = null;
                 switch (requestDto.ApiType)
@@ -62,13 +85,20 @@ namespace Mango.Web.Service
                     default:
                         message.Method = HttpMethod.Get;
                         break;
-                } 
+                }
 
                 apiResponse = await client.SendAsync(message);
 
-
                 switch (apiResponse.StatusCode)
                 {
+                    case HttpStatusCode.BadRequest:
+                        var badRequestContent = await apiResponse.Content.ReadAsStringAsync();
+                        var badRequestDto = JsonConvert.DeserializeObject<ResponseDto>(badRequestContent);
+                        return new()
+                        {
+                            IsSuccess = false,
+                            Message = badRequestDto?.Message ?? badRequestContent
+                        };
                     case HttpStatusCode.NotFound:
                         return new()
                         {
@@ -79,7 +109,7 @@ namespace Mango.Web.Service
                         return new()
                         {
                             IsSuccess = false,
-                            Message = "Forbidden"
+                            Message = "Access Denied"
                         };
                     case HttpStatusCode.Unauthorized:
                         return new()
@@ -91,19 +121,14 @@ namespace Mango.Web.Service
                         return new()
                         {
                             IsSuccess = false,
-                            Message = "InternalServerError"
+                            Message = "Internal Server Error"
                         };
-
-
                     default:
                         var apiContent = await apiResponse.Content.ReadAsStringAsync();
                         var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
                         return apiResponseDto;
                 }
-
-
             }
-
             catch (Exception ex)
             {
                 var dto = new ResponseDto
@@ -114,6 +139,5 @@ namespace Mango.Web.Service
                 return dto;
             }
         }
-
     }
 }

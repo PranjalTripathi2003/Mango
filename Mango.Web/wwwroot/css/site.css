@@ -20,3 +20,18 @@ html {
 body {
   margin-bottom: 60px;
 }
+/* Standardized product card image container */
+.product-card-img {
+    height: 220px;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.product-detail-img {
+    height: 320px;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 20px;
+}

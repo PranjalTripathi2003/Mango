@@ -22,7 +22,7 @@ namespace Mango.Services.OrderAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Mango.Services.OrderAPI.Models.Dto.OrderDetails", b =>
+            modelBuilder.Entity("Mango.Services.OrderAPI.Models.OrderDetails", b =>
                 {
                     b.Property<int>("OrderDetailsId")
                         .ValueGeneratedOnAdd()
@@ -73,9 +73,6 @@ namespace Mango.Services.OrderAPI.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OrderHeaderId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("datetime2");
 
@@ -91,7 +88,13 @@ namespace Mango.Services.OrderAPI.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StripeSessionId")
+                    b.Property<string>("RazorpayOrderId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RazorpayPaymentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RazorpaySignature")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
@@ -99,27 +102,18 @@ namespace Mango.Services.OrderAPI.Migrations
 
                     b.HasKey("OrderHeaderId");
 
-                    b.HasIndex("OrderHeaderId1");
-
                     b.ToTable("OrderHeaders");
                 });
 
-            modelBuilder.Entity("Mango.Services.OrderAPI.Models.Dto.OrderDetails", b =>
+            modelBuilder.Entity("Mango.Services.OrderAPI.Models.OrderDetails", b =>
                 {
                     b.HasOne("Mango.Services.OrderAPI.Models.OrderHeader", "OrderHeader")
-                        .WithMany()
+                        .WithMany("OrderDetails")
                         .HasForeignKey("OrderHeaderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("OrderHeader");
-                });
-
-            modelBuilder.Entity("Mango.Services.OrderAPI.Models.OrderHeader", b =>
-                {
-                    b.HasOne("Mango.Services.OrderAPI.Models.OrderHeader", null)
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("OrderHeaderId1");
                 });
 
             modelBuilder.Entity("Mango.Services.OrderAPI.Models.OrderHeader", b =>

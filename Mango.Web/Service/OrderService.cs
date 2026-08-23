@@ -24,6 +24,16 @@ namespace Mango.Web.Service
             });
         }
 
+        public async Task<ResponseDto?> CreateRazorpayOrder(RazorpayRequestDto razorpayRequestDto)
+        {
+            return await _baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.POST,
+                Data = razorpayRequestDto,
+                Url = SD.OrderAPIBase + "/api/order/CreateRazorpayOrder"
+            });
+        }
+
         public async Task<ResponseDto?> GetAllOrder(string? userId)
         {
             return await _baseService.SendAsync(new RequestDto()
@@ -39,6 +49,16 @@ namespace Mango.Web.Service
             {
                 ApiType = SD.ApiType.GET,
                 Url = SD.OrderAPIBase + "/api/order/GetOrder/" + orderId
+            });
+        }
+
+        public async Task<ResponseDto?> ValidateRazorpayPayment(RazorpayRequestDto razorpayRequestDto)
+        {
+            return await _baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.POST,
+                Data = razorpayRequestDto,
+                Url = SD.OrderAPIBase + "/api/order/ValidateRazorpayPayment"
             });
         }
 

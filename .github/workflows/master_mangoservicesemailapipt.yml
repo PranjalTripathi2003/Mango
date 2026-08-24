@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Mango.Services.EmailAPI/**'
+      - '.github/workflows/master_mangoservicesemailapipt.yml'
   workflow_dispatch:
 
 jobs:

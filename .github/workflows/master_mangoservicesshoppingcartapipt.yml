@@ -7,6 +7,10 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Mango.Services.ShoppingCartAPI/**'
+      - 'Mango.MessageBus/**'
+      - '.github/workflows/master_mangoservicesshoppingcartapipt.yml'
   workflow_dispatch:
 
 jobs:

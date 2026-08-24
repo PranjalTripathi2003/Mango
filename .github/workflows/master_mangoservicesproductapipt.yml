@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Mango.Services.ProductAPI/**'
+      - '.github/workflows/master_mangoservicesproductapipt.yml'
   workflow_dispatch:
 
 jobs:

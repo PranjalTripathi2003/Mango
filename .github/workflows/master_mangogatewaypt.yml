@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Mango.GatewaySolution/**'
+      - '.github/workflows/master_mangogatewaypt.yml'
   workflow_dispatch:
 
 jobs:

@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Mango.Web/**'
+      - '.github/workflows/master_mangomicroservicept.yml'
   workflow_dispatch:
 
 jobs:

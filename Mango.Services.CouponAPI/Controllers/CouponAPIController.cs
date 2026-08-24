@@ -1,9 +1,10 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Mango.Services.CouponAPI.Data;
 using Mango.Services.CouponAPI.Models;
 using Mango.Services.CouponAPI.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.CouponAPI.Controllers
 {
@@ -16,17 +17,29 @@ namespace Mango.Services.CouponAPI.Controllers
         private ResponseDto _response;
         private IMapper _mapper;
 
-
         public CouponAPIController(AppDbContext db, IMapper mapper)
         {
             _db = db;
             _response = new ResponseDto();
             _mapper = mapper;
+        }
 
+        [AllowAnonymous]
+        [HttpGet("health")]
+        public async Task<IActionResult> Health()
+        {
+            try
+            {
+                await _db.Database.ExecuteSqlRawAsync("SELECT 1");
+                return Ok(new { status = "Healthy", database = "Connected" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { status = "Unhealthy", error = ex.Message });
+            }
         }
 
         [HttpGet]
-
         public ResponseDto Get()
         {
             try
@@ -38,13 +51,9 @@ namespace Mango.Services.CouponAPI.Controllers
             {
                 _response.IsSuccess = false;
                 _response.Message = ex.Message;
-
-
             }
             return _response;
         }
-
-
 
         [HttpGet]
         [Route("{id:int}")]
@@ -54,7 +63,6 @@ namespace Mango.Services.CouponAPI.Controllers
             {
                 Coupon obj = _db.Coupons.First(u => u.CouponId == id);
                 _response.Result = _mapper.Map<CouponDto>(obj);
-
             }
             catch (Exception ex)
             {
@@ -62,9 +70,7 @@ namespace Mango.Services.CouponAPI.Controllers
                 _response.Message = ex.Message;
             }
             return _response;
-
         }
-
 
         [HttpGet]
         [Route("GetByCode/{code}")]
@@ -74,7 +80,6 @@ namespace Mango.Services.CouponAPI.Controllers
             {
                 Coupon obj = _db.Coupons.First(u => u.CouponCode.ToLower() == code.ToLower());
                 _response.Result = _mapper.Map<CouponDto>(obj);
-
             }
             catch (Exception ex)
             {
@@ -82,11 +87,10 @@ namespace Mango.Services.CouponAPI.Controllers
                 _response.Message = ex.Message;
             }
             return _response;
-
         }
 
         [HttpPost]
-        [Authorize(Roles ="ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         public ResponseDto Post([FromBody] CouponDto couponDto)
         {
             try
@@ -135,7 +139,6 @@ namespace Mango.Services.CouponAPI.Controllers
                 Coupon obj = _db.Coupons.First(u => u.CouponId == id);
                 _db.Coupons.Remove(obj);
                 _db.SaveChanges();
-
             }
             catch (Exception ex)
             {

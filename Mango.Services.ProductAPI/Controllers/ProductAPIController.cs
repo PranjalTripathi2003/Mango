@@ -4,6 +4,7 @@ using Mango.Services.ProductAPI.Models;
 using Mango.Services.ProductAPI.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.ProductAPI.Controllers
 {
@@ -20,6 +21,20 @@ namespace Mango.Services.ProductAPI.Controllers
             _db = db;
             _mapper = mapper;
             _response = new ResponseDto();
+        }
+
+        [HttpGet("health")]
+        public async Task<IActionResult> Health()
+        {
+            try
+            {
+                await _db.Database.ExecuteSqlRawAsync("SELECT 1");
+                return Ok(new { status = "Healthy", database = "Connected" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { status = "Unhealthy", error = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -57,39 +72,25 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public ResponseDto Post(ProductDto ProductDto)
+        public ResponseDto Post(ProductDto productDto)
         {
             try
             {
-                Product product = _mapper.Map<Product>(ProductDto);
+                Product product = _mapper.Map<Product>(productDto);
                 _db.Products.Add(product);
                 _db.SaveChanges();
 
-                if (ProductDto.Image != null)
+                if (productDto.Image != null)
                 {
-                    string fileName = product.ProductId + Path.GetExtension(ProductDto.Image.FileName);
-                    string filePath = @"wwwroot\ProductImages\" + fileName;
-
-                    var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
-                    FileInfo file = new FileInfo(directoryLocation);
-                    if (file.Exists)
-                    {
-                        file.Delete();
-                    }
-
+                    string filename = product.ProductId + Path.GetExtension(productDto.Image.FileName);
+                    string filePath = @"wwwroot\ProductImages\" + filename;
                     var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
-                    var directoryPath = Path.GetDirectoryName(filePathDirectory);
-                    if (!Directory.Exists(directoryPath))
-                    {
-                        Directory.CreateDirectory(directoryPath);
-                    }
-
                     using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
                     {
-                        ProductDto.Image.CopyTo(fileStream);
+                        productDto.Image.CopyTo(fileStream);
                     }
                     var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
-                    product.ImageUrl = baseUrl + "/ProductImages/" + fileName;
+                    product.ImageUrl = baseUrl + "/ProductImages/" + filename;
                     product.ImageLocalPath = filePath;
                 }
                 else
@@ -110,13 +111,13 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpPut]
         [Authorize(Roles = "ADMIN")]
-        public ResponseDto Put(ProductDto ProductDto)
+        public ResponseDto Put(ProductDto productDto)
         {
             try
             {
-                Product product = _mapper.Map<Product>(ProductDto);
+                Product product = _mapper.Map<Product>(productDto);
 
-                if (ProductDto.Image != null)
+                if (productDto.Image != null)
                 {
                     if (!string.IsNullOrEmpty(product.ImageLocalPath))
                     {
@@ -128,21 +129,15 @@ namespace Mango.Services.ProductAPI.Controllers
                         }
                     }
 
-                    string fileName = product.ProductId + Path.GetExtension(ProductDto.Image.FileName);
-                    string filePath = @"wwwroot\ProductImages\" + fileName;
+                    string filename = product.ProductId + Path.GetExtension(productDto.Image.FileName);
+                    string filePath = @"wwwroot\ProductImages\" + filename;
                     var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
-                    var directoryPath = Path.GetDirectoryName(filePathDirectory);
-                    if (!Directory.Exists(directoryPath))
-                    {
-                        Directory.CreateDirectory(directoryPath);
-                    }
-
                     using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
                     {
-                        ProductDto.Image.CopyTo(fileStream);
+                        productDto.Image.CopyTo(fileStream);
                     }
                     var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
-                    product.ImageUrl = baseUrl + "/ProductImages/" + fileName;
+                    product.ImageUrl = baseUrl + "/ProductImages/" + filename;
                     product.ImageLocalPath = filePath;
                 }
 

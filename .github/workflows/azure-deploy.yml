@@ -1,0 +1,196 @@
+name: Build and Deploy All Microservices to Azure
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  # ----------------------------------------------------
+  # 1. Mango.GatewaySolution
+  # ----------------------------------------------------
+  deploy-gateway:
+    name: Deploy Gateway
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish Gateway
+        run: dotnet publish Mango.GatewaySolution/Mango.GatewaySolution.csproj -c Release -o ./publish/gateway
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangogatewaypt'
+          publish-profile: ${{ secrets.AZURE_GATEWAY_PUBLISH_PROFILE }}
+          package: ./publish/gateway
+
+  # ----------------------------------------------------
+  # 2. Mango.Services.AuthAPI
+  # ----------------------------------------------------
+  deploy-auth:
+    name: Deploy AuthAPI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish AuthAPI
+        run: dotnet publish Mango.Services.AuthAPI/Mango.Services.AuthAPI.csproj -c Release -o ./publish/auth
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangoservicesauthapipt'
+          publish-profile: ${{ secrets.AZURE_AUTHAPI_PUBLISH_PROFILE }}
+          package: ./publish/auth
+
+  # ----------------------------------------------------
+  # 3. Mango.Services.ProductAPI
+  # ----------------------------------------------------
+  deploy-product:
+    name: Deploy ProductAPI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish ProductAPI
+        run: dotnet publish Mango.Services.ProductAPI/Mango.Services.ProductAPI.csproj -c Release -o ./publish/product
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangoservicesproductapipt'
+          publish-profile: ${{ secrets.AZURE_PRODUCTAPI_PUBLISH_PROFILE }}
+          package: ./publish/product
+
+  # ----------------------------------------------------
+  # 4. Mango.Services.CouponAPI
+  # ----------------------------------------------------
+  deploy-coupon:
+    name: Deploy CouponAPI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish CouponAPI
+        run: dotnet publish Mango.Services.CouponAPI/Mango.Services.CouponAPI.csproj -c Release -o ./publish/coupon
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangoservicescouponapipt'
+          publish-profile: ${{ secrets.AZURE_COUPONAPI_PUBLISH_PROFILE }}
+          package: ./publish/coupon
+
+  # ----------------------------------------------------
+  # 5. Mango.Services.ShoppingCartAPI
+  # ----------------------------------------------------
+  deploy-cart:
+    name: Deploy ShoppingCartAPI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish ShoppingCartAPI
+        run: dotnet publish Mango.Services.ShoppingCartAPI/Mango.Services.ShoppingCartAPI.csproj -c Release -o ./publish/cart
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangoservicesshoppingcartapipt'
+          publish-profile: ${{ secrets.AZURE_SHOPPINGCARTAPI_PUBLISH_PROFILE }}
+          package: ./publish/cart
+
+  # ----------------------------------------------------
+  # 6. Mango.Services.OrderAPI
+  # ----------------------------------------------------
+  deploy-order:
+    name: Deploy OrderAPI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish OrderAPI
+        run: dotnet publish Mango.Services.OrderAPI/Mango.Services.OrderAPI.csproj -c Release -o ./publish/order
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangoservicesorderapipt'
+          publish-profile: ${{ secrets.AZURE_ORDERAPI_PUBLISH_PROFILE }}
+          package: ./publish/order
+
+  # ----------------------------------------------------
+  # 7. Mango.Services.EmailAPI
+  # ----------------------------------------------------
+  deploy-email:
+    name: Deploy EmailAPI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish EmailAPI
+        run: dotnet publish Mango.Services.EmailAPI/Mango.Services.EmailAPI.csproj -c Release -o ./publish/email
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangoservicesemailapipt'
+          publish-profile: ${{ secrets.AZURE_EMAILAPI_PUBLISH_PROFILE }}
+          package: ./publish/email
+
+  # ----------------------------------------------------
+  # 8. Mango.Services.RewardAPI
+  # ----------------------------------------------------
+  deploy-reward:
+    name: Deploy RewardAPI
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish RewardAPI
+        run: dotnet publish Mango.Services.RewardAPI/Mango.Services.RewardAPI.csproj -c Release -o ./publish/reward
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangoservicesrewardapipt'
+          publish-profile: ${{ secrets.AZURE_REWARDAPI_PUBLISH_PROFILE }}
+          package: ./publish/reward
+
+  # ----------------------------------------------------
+  # 9. Mango.Web (Frontend)
+  # ----------------------------------------------------
+  deploy-web:
+    name: Deploy Mango.Web
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish Mango.Web
+        run: dotnet publish Mango.Web/Mango.Web.csproj -c Release -o ./publish/web
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mangomicroservicept'
+          publish-profile: ${{ secrets.AZURE_WEB_PUBLISH_PROFILE }}
+          package: ./publish/web

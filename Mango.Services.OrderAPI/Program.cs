@@ -15,7 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(option =>
-    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null)));
 
 // setting up of mapper instance and dependency injection
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();

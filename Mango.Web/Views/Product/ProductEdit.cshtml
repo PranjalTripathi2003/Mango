@@ -4,6 +4,7 @@
     <br />
     <div class="container border p-3">
         <h1 class="text-white text-center">Edit Product</h1>
+
         <input hidden asp-for="ProductId" />
         <hr />
         <div class="row">
@@ -53,11 +54,10 @@
                     <div class="col-5">
                         <input type="submit" value="Update" class="btn btn-success form-control" />
                     </div>
-
                 </div>
             </div>
             <div class="col-2">
-                <img id="imgPreview" src="@Model.ImageUrl" class="w-100" alt="" />
+                <img id="imgPreview" src="@Model.ImageUrl" class="w-100 rounded shadow-sm border" style="max-height:220px; object-fit:cover;" alt="" />
             </div>
         </div>
     </div>

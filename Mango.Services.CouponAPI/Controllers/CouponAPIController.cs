@@ -24,21 +24,6 @@ namespace Mango.Services.CouponAPI.Controllers
             _mapper = mapper;
         }
 
-        [AllowAnonymous]
-        [HttpGet("health")]
-        public async Task<IActionResult> Health()
-        {
-            try
-            {
-                await _db.Database.ExecuteSqlRawAsync("SELECT 1");
-                return Ok(new { status = "Healthy", database = "Connected" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { status = "Unhealthy", error = ex.Message });
-            }
-        }
-
         [HttpGet]
         public ResponseDto Get()
         {

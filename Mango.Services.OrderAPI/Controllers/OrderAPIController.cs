@@ -44,20 +44,6 @@ namespace Mango.Services.OrderAPI.Controllers
 
         }
 
-        [HttpGet("health")]
-        public async Task<IActionResult> Health()
-        {
-            try
-            {
-                await _db.Database.ExecuteSqlRawAsync("SELECT 1");
-                return Ok(new { status = "Healthy", database = "Connected" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { status = "Unhealthy", error = ex.Message });
-            }
-        }
-
         [Authorize]
         [HttpGet("GetOrder/{id:int}")]
         public ResponseDto? Get(int id)

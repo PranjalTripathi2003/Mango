@@ -16,30 +16,14 @@ namespace Mango.Services.AuthAPI.Controllers
         private readonly IAuthService _authService;
         private readonly IMessageBus _messageBus;
         private readonly IConfiguration _configuration;
-        private readonly AppDbContext _db;
         protected ResponseDto _response;
 
-        public AuthAPIController(IAuthService authService, IMessageBus messageBus, IConfiguration configuration, AppDbContext db)
+        public AuthAPIController(IAuthService authService, IMessageBus messageBus, IConfiguration configuration)
         {
             _authService = authService;
             _messageBus = messageBus;
             _configuration = configuration;
-            _db = db;
             _response = new();
-        }
-
-        [HttpGet("health")]
-        public async Task<IActionResult> Health()
-        {
-            try
-            {
-                await _db.Database.ExecuteSqlRawAsync("SELECT 1");
-                return Ok(new { status = "Healthy", database = "Connected" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { status = "Unhealthy", error = ex.Message });
-            }
         }
 
         [HttpPost("register")]
